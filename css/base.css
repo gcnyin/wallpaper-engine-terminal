@@ -1,0 +1,1102 @@
+/* =========================================================================
+   Phosphor Terminal — base layer, theme tokens, tiling layout, tmux bar
+   No external assets. Everything is system-font + CSS + a generated grain.
+   ========================================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+html {
+  --we-scale: 1;
+  --we-scanlines: 0.35;
+  --we-glow: 0.6;
+  --we-accent: rgb(51, 255, 135);
+  --we-accent-rgb: 51 255 135;
+  --accent: var(--we-accent);
+  --accent-rgb: var(--we-accent-rgb);
+
+  /* Prompt and rail roles. Each theme can retune these independently of the
+     ANSI slots, so the prompt is not always green-user / blue-cwd / yellow-
+     branch and the rail follows the theme's own light. */
+  --p-user: var(--a2);
+  --p-cwd: var(--a4);
+  --p-branch: var(--a3);
+  --ff-key: var(--a6);
+  --clock-sec: var(--a6);
+  --spark-mid: var(--a6);
+  --spark-bar: var(--a4);
+
+  /* Layer strengths. Dark themes keep the original CRT values; the paper
+     theme dials them back and swaps the black alphas for warm brown ink.
+     The bloom follows the accent unless a theme names its own wash colour. */
+  --scanline-alpha: 0.22;
+  --grain-alpha: 0.065;
+  --grain-filter: none;
+  --glow-scale: 1;
+  --sheen-rgb: 255 255 255;
+  --sheen-alpha: 0.012;
+  --bloom-rgb: var(--accent-rgb);
+  --veil-rgb: 0 0 0;
+  --veil-scale: 1;
+  --vignette-rgb: 0 0 0;
+  --vignette-scale: 1;
+  --bloom-alpha: 1;
+  --status-bg: rgb(0 0 0 / 0.24);
+
+  --mono: "JetBrains Mono", "JetBrainsMono NF", "Cascadia Mono", "Cascadia Code",
+    "SF Mono", "SFMono-Regular", Menlo, "DejaVu Sans Mono", "Liberation Mono",
+    Consolas, monospace;
+
+  /* Wallpaper Engine hands the page the physical desktop viewport (a 4K
+     panel at 200% reads as 3840x2160 CSS px, dpr 1). The caps are therefore
+     set near twice the 1080p value so the physical type size on a 4K screen
+     matches the logical size on a 1080p one. The vh/vw slopes and the floors
+     are untouched: 1920x1080 still resolves every token below its cap. */
+  --fs-term: calc(clamp(14.2px, 1.44vh, 31px) * var(--we-scale));
+  --fs-ui: calc(clamp(10px, 1.02vh, 22px) * var(--we-scale));
+  --fs-small: calc(clamp(10.2px, 1.03vh, 21px) * var(--we-scale));
+  --fs-status: calc(clamp(10px, 1vh, 20px) * var(--we-scale));
+  --fs-spark: calc(clamp(12px, 1.5vh, 30px) * var(--we-scale));
+  --fs-clock: calc(clamp(54px, 6.4vh, 132px) * var(--we-scale));
+  --lh-term: 1.55;
+
+  --gap: clamp(8px, 0.8vw, 22px);
+  --pad-x: clamp(22px, 3vw, 100px);
+  --pad-y: clamp(10px, 1.5vh, 28px);
+  --fade-top: clamp(120px, 28vh, 560px);
+  --status-h: clamp(26px, 3vh, 40px);
+  /* Windows draws the taskbar over the page, so the composition reserves a
+     bottom band instead of running to the last pixel. */
+  --safe-bottom: clamp(24px, 4.2vh, 92px);
+
+  --ease: cubic-bezier(0.22, 0.8, 0.24, 1);
+  --speed: 240ms;
+}
+
+/* ----- theme: phosphor green CRT ---------------------------------------- */
+/* One green beam, one red alarm. Everything that is not an error is a step on
+   the phosphor ramp, so the screen reads as a green monitor rather than a
+   rainbow terminal with a green caret. */
+html[data-theme="phosphor"] {
+  --bg: #061009;
+  --accent: #3cff8f;
+  --accent-rgb: 60 255 143;
+  --fg: #d2ecd9;
+  --fg-rgb: 210 236 217;
+  --fg-bright: #f2fff6;
+  --fg-dim: #a9c9b2;
+  --fg-muted: #7c9885;
+  --rule: rgb(210 236 217 / 0.11);
+  --rule-soft: rgb(210 236 217 / 0.055);
+  --spark: #6f9a80;
+  --spark-mid: #8fe8b4;
+  --spark-bar: #3cff8f;
+  --pane-a: rgb(0 0 0 / 0.1);
+  --pane-b: rgb(0 0 0 / 0.27);
+  --a0: #0a1710;
+  --a1: #ff7d63;
+  --a2: #5effa0;
+  --a3: #b9d98a;
+  --a4: #8fc7a4;
+  --a5: #c2efcf;
+  --a6: #72dc9f;
+  --a7: #cfe8d6;
+  --a8: #58705f;
+  --a9: #ffa088;
+  --a10: #a9f5bf;
+  --a11: #e2f5b0;
+  --a12: #a4d7b8;
+  --a13: #d6efc9;
+  --a14: #9fe8c0;
+  --a15: #f4fff7;
+  --p-user: #3ee68c;
+  --p-cwd: #9fd6b2;
+  --p-branch: #c2f0a8;
+  --ff-key: #72dc9f;
+  --clock-sec: #72dc9f;
+  --bloom-rgb: 60 255 143;
+  --sheen-rgb: 170 255 200;
+  --sheen-alpha: 0.03;
+  --vignette-rgb: 2 18 9;
+  --vignette-scale: 1.05;
+  --scanline-alpha: 0.26;
+  --grain-filter: sepia(0.4) hue-rotate(55deg) saturate(1.5);
+  --bloom-alpha: 1.1;
+  --ok: var(--a2);
+  --warn: var(--a3);
+  --err: var(--a1);
+}
+
+/* ----- theme: gruvbox dark ---------------------------------------------- */
+/* Brown paper stock under a tungsten lamp: orange caret, yellow hashes,
+   warm green for success and one muted aqua kept for rare code details. */
+html[data-theme="gruvbox"] {
+  --bg: #2a2017;
+  --accent: #fe8019;
+  --accent-rgb: 254 128 25;
+  --fg: #ebdbb2;
+  --fg-rgb: 235 219 178;
+  --fg-bright: #fbf1c7;
+  --fg-dim: #c9b99b;
+  --fg-muted: #a08e73;
+  --rule: rgb(235 219 178 / 0.11);
+  --rule-soft: rgb(235 219 178 / 0.055);
+  --spark: #b08a5e;
+  --spark-mid: #fabd2f;
+  --spark-bar: #fe8019;
+  --pane-a: rgb(0 0 0 / 0.09);
+  --pane-b: rgb(0 0 0 / 0.28);
+  --a0: #211811;
+  --a1: #fb4934;
+  --a2: #b8bb26;
+  --a3: #fabd2f;
+  --a4: #e0a15c;
+  --a5: #d3869b;
+  --a6: #8ec07c;
+  --a7: #ebdbb2;
+  --a8: #928374;
+  --a9: #ff6b57;
+  --a10: #d5d65e;
+  --a11: #ffd75e;
+  --a12: #83a598;
+  --a13: #e4a4b6;
+  --a14: #b6d9a7;
+  --a15: #fbf1c7;
+  --p-user: #fe8019;
+  --p-cwd: #e0a15c;
+  --p-branch: #fabd2f;
+  --ff-key: #fabd2f;
+  --clock-sec: #fe8019;
+  --bloom-rgb: 255 128 40;
+  --sheen-rgb: 255 210 150;
+  --sheen-alpha: 0.028;
+  --vignette-rgb: 28 18 8;
+  --grain-filter: sepia(0.65) saturate(1.3);
+  --ok: var(--a2);
+  --warn: var(--a3);
+  --err: var(--a1);
+}
+
+/* ----- theme: nord ------------------------------------------------------- */
+/* Polar daylight: a lifted blue-grey desk, frost chrome, snow text. The most
+   desaturated and highest-key of the cool themes. */
+html[data-theme="nord"] {
+  --bg: #2b3140;
+  --accent: #88c0d0;
+  --accent-rgb: 136 192 208;
+  --fg: #d8dee9;
+  --fg-rgb: 216 222 233;
+  --fg-bright: #eceff4;
+  --fg-dim: #c1cbdb;
+  --fg-muted: #8f9cb2;
+  --rule: rgb(216 222 233 / 0.11);
+  --rule-soft: rgb(216 222 233 / 0.055);
+  --spark: #7f93ab;
+  --spark-mid: #9fd0dd;
+  --spark-bar: #88c0d0;
+  --pane-a: rgb(0 0 0 / 0.08);
+  --pane-b: rgb(0 0 0 / 0.26);
+  --a0: #232831;
+  --a1: #d7878e;
+  --a2: #a3be8c;
+  --a3: #ebcb8b;
+  --a4: #81a1c1;
+  --a5: #b48ead;
+  --a6: #88c0d0;
+  --a7: #d8dee9;
+  --a8: #67758b;
+  --a9: #d9907c;
+  --a10: #bcd3a8;
+  --a11: #f2dca8;
+  --a12: #9dbbd9;
+  --a13: #cba7c4;
+  --a14: #a6d6e2;
+  --a15: #eceff4;
+  --p-user: #88c0d0;
+  --p-cwd: #81a1c1;
+  --p-branch: #b48ead;
+  --ff-key: #88c0d0;
+  --clock-sec: #88c0d0;
+  --bloom-rgb: 120 170 210;
+  --sheen-rgb: 200 220 245;
+  --sheen-alpha: 0.035;
+  --vignette-rgb: 8 14 26;
+  --scanline-alpha: 0.2;
+  --bloom-alpha: 0.85;
+  --ok: var(--a2);
+  --warn: var(--a3);
+  --err: var(--a1);
+}
+
+/* ----- theme: catppuccin mocha ------------------------------------------ */
+/* Navy-mauve base with a soft pastel top note: lavender chrome, pink cwd and
+   teal seconds. Higher key and less electric than Tokyo. */
+html[data-theme="catppuccin"] {
+  --bg: #221e34;
+  --accent: #cba6f7;
+  --accent-rgb: 203 166 247;
+  --fg: #cdd6f4;
+  --fg-rgb: 205 214 244;
+  --fg-bright: #eef1fd;
+  --fg-dim: #b6bede;
+  --fg-muted: #8a8fa8;
+  --rule: rgb(205 214 244 / 0.11);
+  --rule-soft: rgb(205 214 244 / 0.055);
+  --spark: #8a86b8;
+  --spark-mid: #cba6f7;
+  --spark-bar: #cba6f7;
+  --pane-a: rgb(0 0 0 / 0.08);
+  --pane-b: rgb(0 0 0 / 0.26);
+  --a0: #1c192b;
+  --a1: #f38ba8;
+  --a2: #a6e3a1;
+  --a3: #f9e2af;
+  --a4: #89b4fa;
+  --a5: #cba6f7;
+  --a6: #94e2d5;
+  --a7: #cdd6f4;
+  --a8: #6c7086;
+  --a9: #f7a8bd;
+  --a10: #c3f0bf;
+  --a11: #fbecbf;
+  --a12: #a9c9fc;
+  --a13: #ddc2fa;
+  --a14: #b8efe7;
+  --a15: #e9edfb;
+  --p-user: #cba6f7;
+  --p-cwd: #f5c2e7;
+  --p-branch: #94e2d5;
+  --ff-key: #94e2d5;
+  --clock-sec: #94e2d5;
+  --bloom-rgb: 170 140 255;
+  --sheen-rgb: 200 195 255;
+  --sheen-alpha: 0.03;
+  --vignette-rgb: 14 12 38;
+  --ok: var(--a2);
+  --warn: var(--a3);
+  --err: var(--a1);
+}
+
+/* ----- theme: tokyo night ------------------------------------------------ */
+/* Midnight indigo, electric blue chrome, cyan cwd and violet branch. The
+   saturated night-city counterpart to Catppuccin's softer pastel. */
+html[data-theme="tokyo"] {
+  --bg: #0a1024;
+  --accent: #7aa2f7;
+  --accent-rgb: 122 162 247;
+  --fg: #c0caf5;
+  --fg-rgb: 192 202 245;
+  --fg-bright: #e3e9ff;
+  --fg-dim: #a3aee0;
+  --fg-muted: #7c86b5;
+  --rule: rgb(192 202 245 / 0.11);
+  --rule-soft: rgb(192 202 245 / 0.055);
+  --spark: #5f7fc0;
+  --spark-mid: #7dcfff;
+  --spark-bar: #7aa2f7;
+  --pane-a: rgb(0 0 0 / 0.08);
+  --pane-b: rgb(0 0 0 / 0.28);
+  --a0: #151b30;
+  --a1: #f7768e;
+  --a2: #9ece6a;
+  --a3: #e0af68;
+  --a4: #7aa2f7;
+  --a5: #bb9af7;
+  --a6: #7dcfff;
+  --a7: #c0caf5;
+  --a8: #565f89;
+  --a9: #fa93a7;
+  --a10: #b9e28c;
+  --a11: #edc88b;
+  --a12: #9dbbfa;
+  --a13: #cfb5fa;
+  --a14: #a5e3ff;
+  --a15: #dde5ff;
+  --p-user: #7aa2f7;
+  --p-cwd: #7dcfff;
+  --p-branch: #bb9af7;
+  --ff-key: #7dcfff;
+  --clock-sec: #7dcfff;
+  --bloom-rgb: 70 130 255;
+  --sheen-rgb: 150 180 255;
+  --sheen-alpha: 0.03;
+  --vignette-rgb: 4 10 34;
+  --scanline-alpha: 0.24;
+  --bloom-alpha: 1.15;
+  --ok: var(--a2);
+  --warn: var(--a3);
+  --err: var(--a1);
+}
+
+/* ----- theme: amber CRT ------------------------------------------------- */
+/* A real monochrome phosphor tube: brown-black glass, amber beam, cream
+   highlights. The only non-amber colour is the hot ember red used for errors. */
+html[data-theme="amber"] {
+  --bg: #150c04;
+  --accent: #ffb454;
+  --accent-rgb: 255 180 84;
+  --fg: #f4d8a5;
+  --fg-rgb: 244 216 165;
+  --fg-bright: #fff0d2;
+  --fg-dim: #d3ae74;
+  --fg-muted: #a8875c;
+  --rule: rgb(244 216 165 / 0.11);
+  --rule-soft: rgb(244 216 165 / 0.055);
+  --spark: #b98a4e;
+  --spark-mid: #ffd082;
+  --spark-bar: #ffb454;
+  --pane-a: rgb(0 0 0 / 0.08);
+  --pane-b: rgb(0 0 0 / 0.3);
+  --a0: #241407;
+  --a1: #ff6b3d;
+  --a2: #ffc46b;
+  --a3: #ffa53a;
+  --a4: #e8c17b;
+  --a5: #c98a4b;
+  --a6: #d9b074;
+  --a7: #efd3a0;
+  --a8: #9a7749;
+  --a9: #ff8a5c;
+  --a10: #ffd98a;
+  --a11: #ffe7b8;
+  --a12: #c7a06a;
+  --a13: #b98450;
+  --a14: #f0c887;
+  --a15: #fff6e2;
+  --p-user: #ffc06a;
+  --p-cwd: #d8a860;
+  --p-branch: #ffe0a5;
+  --ff-key: #ffc46b;
+  --clock-sec: #ffcf7a;
+  --bloom-rgb: 255 150 56;
+  --sheen-rgb: 255 214 160;
+  --sheen-alpha: 0.035;
+  --vignette-rgb: 38 17 4;
+  --scanline-alpha: 0.28;
+  --grain-filter: sepia(0.8) saturate(1.5);
+  --bloom-alpha: 1.15;
+  --ok: var(--a2);
+  --warn: var(--a3);
+  --err: var(--a1);
+}
+
+/* ----- theme: everforest dark ------------------------------------------- */
+/* Olive glass, moss light, sand paths. The background carries a real green
+   cast and the cool cyan is gone; gold and moss lead the syntax. */
+html[data-theme="everforest"] {
+  --bg: #282c1f;
+  --accent: #a7c080;
+  --accent-rgb: 167 192 128;
+  --fg: #d3c6aa;
+  --fg-rgb: 211 198 170;
+  --fg-bright: #f0ead2;
+  --fg-dim: #c8c1a2;
+  --fg-muted: #93927a;
+  --rule: rgb(211 198 170 / 0.11);
+  --rule-soft: rgb(211 198 170 / 0.055);
+  --spark: #8b9a72;
+  --spark-mid: #a7c080;
+  --spark-bar: #a7c080;
+  --pane-a: rgb(0 0 0 / 0.07);
+  --pane-b: rgb(0 0 0 / 0.27);
+  --a0: #1c2016;
+  --a1: #e67e80;
+  --a2: #a7c080;
+  --a3: #dbbc7f;
+  --a4: #c9b98d;
+  --a5: #d699b6;
+  --a6: #83c092;
+  --a7: #d3c6aa;
+  --a8: #7a8471;
+  --a9: #ef9a9c;
+  --a10: #bfd7a0;
+  --a11: #e8d0a0;
+  --a12: #b3c99a;
+  --a13: #e6b3c9;
+  --a14: #9fd6ae;
+  --a15: #f0ead2;
+  --p-user: #dbbc7f;
+  --p-cwd: #cbbc93;
+  --p-branch: #a7c080;
+  --ff-key: #dbbc7f;
+  --clock-sec: #a7c080;
+  --bloom-rgb: 190 190 100;
+  --sheen-rgb: 235 228 175;
+  --sheen-alpha: 0.026;
+  --vignette-rgb: 22 24 12;
+  --grain-filter: sepia(0.45) saturate(1.15);
+  --ok: var(--a2);
+  --warn: var(--a3);
+  --err: var(--a1);
+}
+
+/* ----- theme: kanagawa wave --------------------------------------------- */
+/* Warm ink and old gold. Vermilion leads the prompt, gold the chrome; the
+   wave blue is demoted to directory and log-detail work. */
+html[data-theme="kanagawa"] {
+  --bg: #1f1b13;
+  --accent: #e6c384;
+  --accent-rgb: 230 195 132;
+  --fg: #dcd7ba;
+  --fg-rgb: 220 215 186;
+  --fg-bright: #f2ecdc;
+  --fg-dim: #c5bda3;
+  --fg-muted: #948a74;
+  --rule: rgb(220 215 186 / 0.11);
+  --rule-soft: rgb(220 215 186 / 0.055);
+  --spark: #b8a06a;
+  --spark-mid: #e6c384;
+  --spark-bar: #e6c384;
+  --pane-a: rgb(0 0 0 / 0.08);
+  --pane-b: rgb(0 0 0 / 0.3);
+  --a0: #272118;
+  --a1: #e46876;
+  --a2: #98bb6c;
+  --a3: #e6c384;
+  --a4: #8ba4d8;
+  --a5: #957fb8;
+  --a6: #7fb4ca;
+  --a7: #dcd7ba;
+  --a8: #727169;
+  --a9: #f08c99;
+  --a10: #b7d48c;
+  --a11: #f0d9a4;
+  --a12: #9dbbf0;
+  --a13: #b39ad4;
+  --a14: #a0d8e0;
+  --a15: #f2ecdc;
+  --p-user: #e46876;
+  --p-cwd: #e6c384;
+  --p-branch: #d9a05b;
+  --ff-key: #e6c384;
+  --clock-sec: #e46876;
+  --bloom-rgb: 230 175 90;
+  --sheen-rgb: 255 214 150;
+  --sheen-alpha: 0.028;
+  --vignette-rgb: 34 25 10;
+  --grain-filter: sepia(0.55) saturate(1.2);
+  --ok: var(--a2);
+  --warn: var(--a3);
+  --err: var(--a1);
+}
+
+/* ----- theme: rosé pine -------------------------------------------------- */
+/* Dusk plum, not neutral night. Rose is the light source, gold the lamp and
+   iris the shadow; foam appears only as a quiet secondary. */
+html[data-theme="rosepine"] {
+  --bg: #271b30;
+  --accent: #ebbcba;
+  --accent-rgb: 235 188 186;
+  --fg: #e0def4;
+  --fg-rgb: 224 222 244;
+  --fg-bright: #f6f2ff;
+  --fg-dim: #c9c2db;
+  --fg-muted: #9a91ad;
+  --rule: rgb(224 222 244 / 0.11);
+  --rule-soft: rgb(224 222 244 / 0.055);
+  --spark: #a58ca0;
+  --spark-mid: #f6c177;
+  --spark-bar: #ebbcba;
+  --pane-a: rgb(0 0 0 / 0.08);
+  --pane-b: rgb(0 0 0 / 0.28);
+  --a0: #2e2138;
+  --a1: #eb6f92;
+  --a2: #ebbcba;
+  --a3: #f6c177;
+  --a4: #c4a7e7;
+  --a5: #9ccfd8;
+  --a6: #ebbcba;
+  --a7: #e0def4;
+  --a8: #6e6a86;
+  --a9: #f28ba5;
+  --a10: #f2d4a8;
+  --a11: #f8d09a;
+  --a12: #d7c3f0;
+  --a13: #f2cfcd;
+  --a14: #b6e0e6;
+  --a15: #f4f1ff;
+  --p-user: #ebbcba;
+  --p-cwd: #f6c177;
+  --p-branch: #c4a7e7;
+  --ff-key: #c4a7e7;
+  --clock-sec: #ebbcba;
+  --bloom-rgb: 180 90 130;
+  --sheen-rgb: 240 190 220;
+  --sheen-alpha: 0.028;
+  --vignette-rgb: 38 18 45;
+  --grain-filter: sepia(0.3) hue-rotate(-15deg);
+  --ok: var(--a2);
+  --warn: var(--a3);
+  --err: var(--a1);
+}
+
+/* ----- theme: dracula ---------------------------------------------------- */
+/* Charcoal nightclub: hot pink chrome, violet directories, lime branch and
+   acid-yellow numbers. Loud on purpose, not just purple text on black. */
+html[data-theme="dracula"] {
+  --bg: #232329;
+  --accent: #ff79c6;
+  --accent-rgb: 255 121 198;
+  --fg: #f8f8f2;
+  --fg-rgb: 248 248 242;
+  --fg-bright: #ffffff;
+  --fg-dim: #d4d6e4;
+  --fg-muted: #9195ab;
+  --rule: rgb(248 248 242 / 0.11);
+  --rule-soft: rgb(248 248 242 / 0.055);
+  --spark: #9a7fa8;
+  --spark-mid: #ff79c6;
+  --spark-bar: #ff79c6;
+  --pane-a: rgb(0 0 0 / 0.06);
+  --pane-b: rgb(0 0 0 / 0.26);
+  --a0: #2b2b33;
+  --a1: #ff5555;
+  --a2: #50fa7b;
+  --a3: #f1fa8c;
+  --a4: #bd93f9;
+  --a5: #ff79c6;
+  --a6: #8be9fd;
+  --a7: #f8f8f2;
+  --a8: #6272a4;
+  --a9: #ff6e6e;
+  --a10: #69ff94;
+  --a11: #ffffa5;
+  --a12: #caa9fa;
+  --a13: #ff92df;
+  --a14: #a4f2ff;
+  --a15: #ffffff;
+  --p-user: #ff79c6;
+  --p-cwd: #bd93f9;
+  --p-branch: #50fa7b;
+  --ff-key: #8be9fd;
+  --clock-sec: #ff79c6;
+  --bloom-rgb: 255 90 190;
+  --sheen-rgb: 255 170 230;
+  --sheen-alpha: 0.026;
+  --vignette-rgb: 18 16 28;
+  --ok: var(--a2);
+  --warn: var(--a3);
+  --err: var(--a1);
+}
+
+/* ----- theme: paper (warm light) ---------------------------------------- */
+/* Sepia stock rather than white: warm ivory paper, rust chrome, umber paths
+   and olive/ochre ink. Still a daylight surface; the grain turns to black
+   fibre, the corner veil becomes warm brown shading, and the phosphor bloom
+   and text glow are pulled back so nothing smears the ink. */
+html[data-theme="paper"] {
+  color-scheme: light;
+  --bg: #f1e4c8;
+  --accent: #a8481f;
+  --accent-rgb: 168 72 31;
+  --fg: #3b3122;
+  --fg-rgb: 59 49 34;
+  --fg-bright: #1f1a13;
+  --fg-dim: #5c4b33;
+  --fg-muted: #75603f;
+  --rule: rgb(59 49 34 / 0.15);
+  --rule-soft: rgb(59 49 34 / 0.08);
+  --spark: #8a7355;
+  --spark-mid: #a8481f;
+  --spark-bar: #a8481f;
+  --pane-a: rgb(255 251 240 / 0.34);
+  --pane-b: rgb(197 176 143 / 0.16);
+  --a0: #4a4030;
+  --a1: #9a3524;
+  --a2: #516a30;
+  --a3: #8a5a18;
+  --a4: #7a5124;
+  --a5: #7a3b57;
+  --a6: #6a5a2c;
+  --a7: #3b3122;
+  --a8: #82725c;
+  --a9: #83301f;
+  --a10: #3f5a24;
+  --a11: #7a4e10;
+  --a12: #6b4a2e;
+  --a13: #63364f;
+  --a14: #57642f;
+  --a15: #1f1a13;
+  --p-user: #9a4520;
+  --p-cwd: #6f5128;
+  --p-branch: #8a5015;
+  --ff-key: #8a5a18;
+  --clock-sec: #a8481f;
+  --bloom-rgb: 190 110 60;
+  --sheen-rgb: 255 245 220;
+  --sheen-alpha: 0;
+  --vignette-rgb: 96 70 38;
+  --vignette-scale: 0.32;
+  --scanline-alpha: 0.13;
+  --grain-alpha: 0.06;
+  --grain-filter: invert(1);
+  --glow-scale: 0;
+  --bloom-alpha: 0.38;
+  --status-bg: rgb(255 250 240 / 0.48);
+  --ok: var(--a2);
+  --warn: var(--a3);
+  --err: var(--a1);
+}
+
+/* The paper statusline sits on the bottom vignette; lift the muted center text
+   one step so it stays readable on the warm shading. */
+html[data-theme="paper"] .status__center {
+  color: var(--fg-dim);
+}
+
+/* ----- theme: monochrome ------------------------------------------------- */
+/* Strict grayscale, printed on black. Brightness replaces hue for hierarchy,
+   so the frame stays crisp instead of turning into grey mud. */
+html[data-theme="mono"] {
+  --bg: #060607;
+  --accent: #f5f5f5;
+  --accent-rgb: 245 245 245;
+  --fg: #eeeeee;
+  --fg-rgb: 238 238 238;
+  --fg-bright: #ffffff;
+  --fg-dim: #c9c9c9;
+  --fg-muted: #8c8c8c;
+  --rule: rgb(255 255 255 / 0.13);
+  --rule-soft: rgb(255 255 255 / 0.06);
+  --spark: #a0a0a0;
+  --spark-mid: #f5f5f5;
+  --spark-bar: #f5f5f5;
+  --pane-a: rgb(0 0 0 / 0.1);
+  --pane-b: rgb(0 0 0 / 0.3);
+  --a0: #141414;
+  --a1: #ffffff;
+  --a2: #b4b4b4;
+  --a3: #e6e6e6;
+  --a4: #c9c9c9;
+  --a5: #9c9c9c;
+  --a6: #dedede;
+  --a7: #e6e6e6;
+  --a8: #767676;
+  --a9: #ffffff;
+  --a10: #cfcfcf;
+  --a11: #f2f2f2;
+  --a12: #a8a8a8;
+  --a13: #eaeaea;
+  --a14: #d4d4d4;
+  --a15: #ffffff;
+  --p-user: #ffffff;
+  --p-cwd: #9e9e9e;
+  --p-branch: #d0d0d0;
+  --ff-key: #dedede;
+  --clock-sec: #a8a8a8;
+  --bloom-rgb: 230 230 230;
+  --sheen-rgb: 255 255 255;
+  --sheen-alpha: 0.02;
+  --vignette-rgb: 0 0 0;
+  --vignette-scale: 0.9;
+  --scanline-alpha: 0.2;
+  --bloom-alpha: 0.75;
+  --ok: var(--a2);
+  --warn: var(--a3);
+  --err: var(--a1);
+}
+
+/* A custom Wallpaper Engine accent replaces the theme accent for the whole
+   chrome. The WE UI color itself stays on --we-accent. */
+html[data-accent="custom"] {
+  --accent: var(--we-accent);
+  --accent-rgb: var(--we-accent-rgb);
+}
+
+body {
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-variant-ligatures: none;
+  font-feature-settings: "calt" 0, "liga" 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  transition: background-color 420ms var(--ease), color 420ms var(--ease);
+}
+
+::selection {
+  background: rgb(var(--accent-rgb) / 0.28);
+  color: var(--fg-bright);
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================================
+   base layer — dot grid, one bloom, vignette
+   ========================================================================= */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 100% at 50% 30%,
+      rgb(var(--sheen-rgb) / var(--sheen-alpha)),
+      transparent 58%
+    ),
+    var(--bg);
+}
+
+.backdrop__grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgb(var(--fg-rgb) / 0.048) 1px,
+    transparent 1.25px
+  );
+  background-size: 25px 25px;
+  background-position: 12px 9px;
+  mask-image: linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
+}
+
+.backdrop__bloom {
+  position: absolute;
+  left: 58%;
+  top: 30%;
+  width: 138vmax;
+  height: 100vmax;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    closest-side,
+    rgb(var(--bloom-rgb) / calc(0.5 * var(--bloom-alpha))) 0%,
+    rgb(var(--bloom-rgb) / calc(0.18 * var(--bloom-alpha))) 34%,
+    rgb(var(--bloom-rgb) / calc(0.045 * var(--bloom-alpha))) 62%,
+    transparent 76%
+  );
+  opacity: calc(var(--we-glow) * 0.105 + var(--audio-level, 0) * 0.055);
+  transition: opacity 320ms linear;
+  will-change: opacity;
+}
+
+.backdrop__vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      118% 96% at 50% 44%,
+      transparent 42%,
+      rgb(var(--vignette-rgb) / calc(0.3 * var(--vignette-scale))) 76%,
+      rgb(var(--vignette-rgb) / calc(0.58 * var(--vignette-scale))) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      rgb(var(--vignette-rgb) / calc(0.32 * var(--vignette-scale))) 0%,
+      transparent 16%,
+      transparent 84%,
+      rgb(var(--vignette-rgb) / calc(0.36 * var(--vignette-scale))) 100%
+    );
+}
+
+/* =========================================================================
+   frame + tiling workspace
+   ========================================================================= */
+
+.desk {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: var(--pad-y) var(--pad-x) var(--safe-bottom);
+}
+
+.frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: clamp(1680px, 87vw, 3360px);
+  min-width: 0;
+  min-height: 0;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.62fr) minmax(0, 1fr);
+  gap: var(--gap);
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.frame[data-rail="off"] .workspace {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.frame[data-rail="off"] .rail {
+  display: none;
+}
+
+/* ----- terminal plane ---------------------------------------------------- */
+
+/* The scrollback sits directly on the wallpaper base. No pane tint, no edge
+   hairline, no icon veil: any of those would draw a rectangle around the
+   terminal on the real desktop. The frame margins keep desktop icons clear of
+   the first glyphs, and the top scrollback fade does the quieting. */
+.term {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* =========================================================================
+   CRT overlay — scanlines, grain, vignette (above content, never duplicates it)
+   ========================================================================= */
+
+.crt {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.crt__scanlines {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.34) 0px,
+      rgb(0 0 0 / 0.34) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 0.028) 2px,
+      transparent 2px,
+      transparent 3px
+    );
+  opacity: calc(var(--we-scanlines) * var(--scanline-alpha));
+}
+
+.crt__grain {
+  position: absolute;
+  inset: -25%;
+  background-image: var(--grain-image, none);
+  background-size: 184px 184px;
+  opacity: calc(var(--we-scanlines) * var(--grain-alpha));
+  filter: var(--grain-filter);
+  animation: grain-shift 1.1s steps(12) infinite;
+  will-change: transform;
+}
+
+.crt__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    130% 105% at 50% 46%,
+    transparent 62%,
+    rgb(var(--vignette-rgb) / calc(0.22 * var(--vignette-scale))) 100%
+  );
+}
+
+@keyframes grain-shift {
+  0% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(-37px, 23px, 0); }
+  50% { transform: translate3d(31px, -41px, 0); }
+  75% { transform: translate3d(-19px, -29px, 0); }
+  100% { transform: translate3d(41px, 37px, 0); }
+}
+
+html[data-paused="true"] .crt__grain,
+html[data-motion="static"] .crt__grain {
+  animation: none;
+}
+
+/* =========================================================================
+   tmux statusline
+   ========================================================================= */
+
+/* Hairline only. With the terminal sitting on the bare desktop base, a filled
+   strip would read as a leftover pane; the window chip, the live text and the
+   top rule carry the bar instead. */
+.status {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 var(--status-h);
+  height: var(--status-h);
+  margin-top: 0;
+  padding: 0 2px;
+  border-top: 1px solid var(--rule);
+  color: var(--fg-muted);
+  font-size: var(--fs-status);
+  line-height: 1;
+  letter-spacing: 0.015em;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.status__left,
+.status__right {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.status__left {
+  justify-content: flex-start;
+  gap: 1px;
+}
+
+.status__right {
+  justify-content: flex-end;
+  gap: 6px;
+  color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.session-ind {
+  color: var(--accent);
+  opacity: 0.8;
+  margin-right: 8px;
+  letter-spacing: 0.04em;
+}
+
+.win {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1px;
+  padding: 3px 8px 3px 7px;
+  color: var(--fg-dim);
+}
+
+.win.is-active {
+  color: var(--fg-bright);
+  background: rgb(var(--accent-rgb) / 0.12);
+  box-shadow: inset 0 -1px 0 rgb(var(--accent-rgb) / 0.55);
+}
+
+.win__index {
+  color: var(--fg-muted);
+}
+
+.win.is-active .win__index {
+  color: var(--accent);
+}
+
+.win__flag {
+  color: var(--accent);
+  margin-left: 1px;
+}
+
+.status__center {
+  color: var(--fg-muted);
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status__branch {
+  color: var(--fg-dim);
+}
+
+.status__branch .up {
+  color: var(--accent);
+}
+
+.status__sep {
+  color: var(--fg-muted);
+  opacity: 0.45;
+}
+
+.status__time {
+  color: var(--fg);
+  letter-spacing: 0.02em;
+}
+
+/* =========================================================================
+   responsive
+   ========================================================================= */
+
+@media (max-width: 1120px), (orientation: portrait) {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .status {
+    grid-template-columns: 1fr auto;
+  }
+
+  .status__center,
+  .session-ind,
+  .win--logs,
+  .win__flag,
+  .status__branch,
+  .status__sep,
+  .status__date {
+    display: none;
+  }
+
+  .status__right {
+    gap: 0;
+  }
+
+  .clock__time {
+    letter-spacing: -0.05em;
+  }
+}
+
+@media (max-width: 720px) {
+  :root {
+    --pad-x: 16px;
+  }
+
+  .status {
+    gap: 6px;
+  }
+
+  .win {
+    padding: 3px 6px;
+  }
+}
+
+/* Portrait is a tall, narrow canvas: give the terminal a slightly larger vw-
+   driven type so the panel does not sit hard against a dead right edge. */
+@media (orientation: portrait) {
+  :root {
+    --fs-term: calc(clamp(20px, 2.15vw, 23.5px) * var(--we-scale));
+  }
+}
+
+/* =========================================================================
+   reduced motion / still — a fully composed, quiet frame
+   ========================================================================= */
+
+html[data-motion="static"] *,
+html[data-motion="static"] *::before,
+html[data-motion="static"] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

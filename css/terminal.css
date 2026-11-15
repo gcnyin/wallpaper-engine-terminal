@@ -1,0 +1,325 @@
+/* =========================================================================
+   Terminal pane — one masked scrollback, no duplicate layers, no ghosting.
+   ========================================================================= */
+
+.term {
+  font-size: var(--fs-term);
+  line-height: var(--lh-term);
+  color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.term__screen {
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior: none;
+  overflow-anchor: none;
+  scroll-padding-bottom: 20px;
+
+  /* The only fade in the system: mask the scrollback itself. Never a copy. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    rgb(0 0 0 / 0.2) calc(var(--fade-top) * 0.32),
+    rgb(0 0 0 / 0.7) calc(var(--fade-top) * 0.66),
+    #000 var(--fade-top),
+    #000 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    rgb(0 0 0 / 0.2) calc(var(--fade-top) * 0.32),
+    rgb(0 0 0 / 0.7) calc(var(--fade-top) * 0.66),
+    #000 var(--fade-top),
+    #000 100%
+  );
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.term__screen::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* On very large frames, keep terminal lines around 100–105 characters. The
+   pane surface stays full-bleed; only the text measure is capped. */
+@media (min-width: 2400px) {
+  .term__screen {
+    max-width: 105ch;
+  }
+}
+
+.term__history {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 100%;
+  padding: 0 1px 2px 0;
+  text-shadow: 0 0 calc(1.7px * var(--we-glow)) rgb(var(--fg-rgb) / calc(0.1 * var(--glow-scale)));
+}
+
+.term-spacer {
+  flex: 0 0 clamp(40px, 4.6vh, 64px);
+  height: clamp(40px, 4.6vh, 64px);
+  min-height: clamp(40px, 4.6vh, 64px);
+  pointer-events: none;
+}
+
+.term__history.is-clearing {
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+
+html[data-motion="static"] .term__history,
+html[data-motion="static"] .caret {
+  text-shadow: none;
+}
+
+/* ----- prompt ----------------------------------------------------------- */
+
+.prompt-line {
+  position: relative;
+  color: var(--fg-bright);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-shadow: 0 0 calc(2.4px * var(--we-glow)) rgb(var(--accent-rgb) / calc(0.1 * var(--glow-scale)));
+}
+
+.p-user {
+  color: var(--p-user);
+  font-weight: 500;
+}
+
+.p-at {
+  color: var(--fg-muted);
+}
+
+.p-host {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.p-cwd {
+  color: var(--p-cwd);
+}
+
+.p-branch {
+  color: var(--p-branch);
+}
+
+.p-char {
+  color: var(--accent);
+  font-weight: 600;
+  margin-left: 0.38em;
+  margin-right: 0.35em;
+}
+
+.cmd-text {
+  color: var(--fg-bright);
+}
+
+.caret {
+  display: inline-block;
+  width: 0.54em;
+  height: 1.17em;
+  margin-left: 0.06em;
+  vertical-align: -0.2em;
+  background: var(--accent);
+  box-shadow:
+    0 0 calc(6px * var(--we-glow)) rgb(var(--accent-rgb) / calc(0.32 * var(--glow-scale))),
+    0 0 calc(12px * var(--we-glow) + 24px * var(--we-glow) * var(--audio-level, 0))
+      rgb(var(--accent-rgb) / calc(0.16 * var(--glow-scale)));
+  animation: caret-blink 1.06s steps(1, end) infinite;
+}
+
+@keyframes caret-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+html[data-paused="true"] .caret {
+  animation-play-state: paused;
+}
+
+html[data-motion="static"] .caret {
+  animation: none;
+  opacity: 1;
+}
+
+/* ----- command sections ------------------------------------------------- */
+
+.cmd {
+  min-width: 0;
+}
+
+.cmd + .cmd,
+.cmd + .prompt-line.is-current {
+  margin-top: 0.38em;
+  padding-top: 0.34em;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.out {
+  color: var(--fg-dim);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.out:empty {
+  display: none;
+}
+
+.out > div {
+  min-height: 1em;
+}
+
+.out > div:first-child {
+  margin-top: 0.02em;
+}
+
+/* ----- ANSI / semantic colour ------------------------------------------- */
+
+.a0 { color: var(--a0); }
+.a1, .err { color: var(--a1); }
+.a2, .ok { color: var(--a2); }
+.a3, .warn { color: var(--a3); }
+.a4 { color: var(--a4); }
+.a5 { color: var(--a5); }
+.a6 { color: var(--a6); }
+.a7 { color: var(--a7); }
+.a8 { color: var(--a8); }
+.a9 { color: var(--a9); }
+.a10 { color: var(--a10); }
+.a11 { color: var(--a11); }
+.a12 { color: var(--a12); }
+.a13 { color: var(--a13); }
+.a14 { color: var(--a14); }
+.a15 { color: var(--a15); }
+
+.accent { color: var(--accent); }
+.bright { color: var(--fg-bright); }
+.dim { color: var(--fg-dim); }
+.muted { color: var(--fg-muted); }
+.rule { color: var(--rule); }
+.b { font-weight: 600; }
+.i { font-style: italic; }
+.u { text-decoration: underline; text-underline-offset: 0.16em; }
+
+.hit {
+  color: var(--accent);
+  background: rgb(var(--accent-rgb) / 0.1);
+}
+
+.bar-fill {
+  color: var(--accent);
+}
+
+.bar-track {
+  color: var(--fg-muted);
+}
+
+.strike {
+  text-decoration: line-through;
+  text-decoration-color: var(--fg-muted);
+}
+
+/* ----- fastfetch banner ------------------------------------------------- */
+
+.ff {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.2em;
+  padding: 0.06em 0 0.1em;
+  font-size: 0.86em;
+  line-height: 1.52;
+}
+
+.ff-art {
+  flex: 0 0 auto;
+  font-size: 1em;
+  line-height: 1.52;
+  color: var(--fg);
+  white-space: pre;
+  text-shadow: 0 0 calc(2.4px * var(--we-glow)) rgb(var(--fg-rgb) / calc(0.12 * var(--glow-scale)));
+}
+
+.ff-side {
+  flex: 1 1 auto;
+  min-width: 0;
+  /* The reference title sits beside the logo's second row. */
+  padding-top: 1.52em;
+}
+
+.ff-title {
+  color: var(--fg-bright);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.ff-rule {
+  color: var(--fg-muted);
+  letter-spacing: -0.02em;
+}
+
+.ff-row {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.ff-key {
+  color: var(--ff-key);
+  font-weight: 500;
+}
+
+.ff-val {
+  color: var(--fg);
+}
+
+.ff-row--motto .ff-val {
+  color: var(--fg-dim);
+}
+
+/* Narrow, high-scale terminals get a compact fetch card. The 19-line logo
+   still fits above the live prompt; the 1920px frame keeps the full scale. */
+html[data-banner="compact"] .ff {
+  font-size: 0.7em;
+  gap: 1.2em;
+}
+
+/* The portrait pane is narrower than the full landscape measure; keep the
+   banner on one line grid at the larger portrait text scale. */
+@media (orientation: portrait) {
+  .ff {
+    font-size: 0.8em;
+    gap: 1.8em;
+  }
+}
+
+/* ----- misc terminal details ------------------------------------------- */
+
+.term .progress-head {
+  color: var(--fg-dim);
+}
+
+.term .hint {
+  color: var(--fg-muted);
+}
+
+/* selection is part of the theme, like a zsh visual selection */
+.term ::selection {
+  background: rgb(var(--accent-rgb) / 0.26);
+  color: var(--fg-bright);
+}
+
+@media (max-width: 620px) {
+  .ff {
+    gap: 1.2em;
+  }
+}

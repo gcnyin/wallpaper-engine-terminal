@@ -1,0 +1,14 @@
+{
+  "name": "phosphor-terminal",
+  "private": true,
+  "version": "1.2.1",
+  "description": "An ambient Linux terminal wallpaper for Wallpaper Engine (web wallpaper).",
+  "scripts": {
+    "gen": "node tools/gen-project-json.mjs",
+    "preview": "pwsh -NoProfile -File tools/make-preview.ps1",
+    "serve": "node tools/serve.mjs",
+    "check": "node tools/gen-project-json.mjs --check",
+    "install:we": "pwsh -NoProfile -File tools/install-wallpaper.ps1",
+    "install:we:launch": "pwsh -NoProfile -File tools/install-wallpaper.ps1 -Launch"
+  }
+}

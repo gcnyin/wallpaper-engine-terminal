@@ -1,0 +1,204 @@
+{
+	"title": "Phosphor Terminal",
+	"description": "A live Linux terminal on a phosphor CRT. zsh, tmux, fastfetch, builds, logs and git all type themselves while a quiet system rail keeps time. Twelve terminal palettes — green phosphor, warm ambers, muted darks and a paper-light mode — with adjustable glow and scanlines and four sessions to watch.",
+	"file": "index.html",
+	"preview": "preview.jpg",
+	"type": "web",
+	"contentrating": "Everyone",
+	"general": {
+		"supportsaudioprocessing": true,
+		"properties": {
+			"theme": {
+				"order": 10,
+				"text": "Color theme",
+				"type": "combo",
+				"value": "phosphor",
+				"options": [
+					{
+						"value": "phosphor",
+						"label": "Phosphor (green CRT)"
+					},
+					{
+						"value": "amber",
+						"label": "Amber CRT (warm)"
+					},
+					{
+						"value": "gruvbox",
+						"label": "Gruvbox (warm)"
+					},
+					{
+						"value": "everforest",
+						"label": "Everforest (warm)"
+					},
+					{
+						"value": "kanagawa",
+						"label": "Kanagawa (warm ink)"
+					},
+					{
+						"value": "rosepine",
+						"label": "Rosé Pine (warm dusk)"
+					},
+					{
+						"value": "catppuccin",
+						"label": "Catppuccin Mocha"
+					},
+					{
+						"value": "tokyo",
+						"label": "Tokyo Night"
+					},
+					{
+						"value": "dracula",
+						"label": "Dracula"
+					},
+					{
+						"value": "nord",
+						"label": "Nord"
+					},
+					{
+						"value": "paper",
+						"label": "Paper (warm light)"
+					},
+					{
+						"value": "mono",
+						"label": "Monochrome"
+					}
+				]
+			},
+			"schemecolor": {
+				"order": 20,
+				"text": "Accent color (Wallpaper Engine UI)",
+				"type": "color",
+				"value": "0.20 1 0.53"
+			},
+			"session": {
+				"order": 30,
+				"text": "Session",
+				"type": "combo",
+				"value": "mixed",
+				"options": [
+					{
+						"value": "mixed",
+						"label": "Mixed (everything)"
+					},
+					{
+						"value": "web",
+						"label": "Frontend / dev server"
+					},
+					{
+						"value": "systems",
+						"label": "Rust / systems"
+					},
+					{
+						"value": "data",
+						"label": "Python / data"
+					},
+					{
+						"value": "ops",
+						"label": "Containers / git"
+					}
+				]
+			},
+			"fontscale": {
+				"order": 40,
+				"text": "UI scale (%)",
+				"type": "slider",
+				"value": 100,
+				"min": 70,
+				"max": 140,
+				"editable": true
+			},
+			"typingspeed": {
+				"order": 50,
+				"text": "Typing speed",
+				"type": "slider",
+				"value": 5,
+				"min": 1,
+				"max": 10,
+				"editable": true
+			},
+			"showclock": {
+				"order": 60,
+				"text": "Show clock",
+				"type": "bool",
+				"value": true
+			},
+			"clockformat": {
+				"order": 70,
+				"text": "Clock format",
+				"type": "combo",
+				"value": "24h",
+				"options": [
+					{
+						"value": "24h",
+						"label": "24-hour"
+					},
+					{
+						"value": "12h",
+						"label": "12-hour"
+					}
+				],
+				"condition": "showclock.value == true"
+			},
+			"showsidebar": {
+				"order": 80,
+				"text": "Show system panel",
+				"type": "bool",
+				"value": true
+			},
+			"showbanner": {
+				"order": 90,
+				"text": "Show banner and tagline",
+				"type": "bool",
+				"value": true
+			},
+			"promptuser": {
+				"order": 100,
+				"text": "Prompt user",
+				"type": "textinput",
+				"value": "dev"
+			},
+			"prompthost": {
+				"order": 110,
+				"text": "Prompt host",
+				"type": "textinput",
+				"value": "workstation"
+			},
+			"tagline": {
+				"order": 120,
+				"text": "Tagline",
+				"type": "textinput",
+				"value": "one keystroke at a time"
+			},
+			"scanlines": {
+				"order": 130,
+				"text": "CRT scanlines and grain",
+				"type": "slider",
+				"value": 35,
+				"min": 0,
+				"max": 100,
+				"editable": true
+			},
+			"glow": {
+				"order": 140,
+				"text": "Phosphor glow",
+				"type": "slider",
+				"value": 60,
+				"min": 0,
+				"max": 100,
+				"editable": true
+			},
+			"parallax": {
+				"order": 150,
+				"text": "Mouse parallax",
+				"type": "bool",
+				"value": false
+			},
+			"audioglow": {
+				"order": 160,
+				"text": "Bass-reactive glow (needs audio processing)",
+				"type": "bool",
+				"value": true
+			}
+		}
+	}
+}

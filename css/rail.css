@@ -1,0 +1,521 @@
+/* =========================================================================
+   Right rail — clock, btop-ish vitals, git. Hairlines only, no boxes.
+   ========================================================================= */
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  /* The clock is a quiet dial, not a page header. Drop the whole rail below
+     the terminal's first line so the top-right corner reads as deliberate
+     negative space; the terminal itself stays put. Padding (not margin) keeps
+     the git block anchored to the workspace bottom and lets the vitals flex
+     absorb the offset. 6.5vh stays proportional at 1440p/4K, where the 130px
+     cap settles back to roughly 6% of the frame. */
+  padding-top: clamp(16px, 6.5vh, 130px);
+  color: var(--fg-dim);
+  font-size: var(--fs-ui);
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.rail > section {
+  min-width: 0;
+}
+
+.rail > section + section {
+  margin-top: clamp(9px, 1.35vh, 17px);
+  padding-top: clamp(9px, 1.35vh, 17px);
+  border-top: 1px solid var(--rule-soft);
+}
+
+.block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--fg-muted);
+  font-size: var(--fs-small);
+  line-height: 1.2;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.block-head__meta {
+  color: var(--fg-muted);
+  text-transform: none;
+  letter-spacing: 0.025em;
+  font-size: var(--fs-small);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ----- clock ------------------------------------------------------------ */
+
+.clock {
+  flex: 0 0 auto;
+  padding-top: 1px;
+}
+
+.clock__head {
+  align-items: center;
+  gap: 10px;
+}
+
+.clock__leader {
+  flex: 1 1 auto;
+  min-width: 18px;
+  height: 1px;
+  align-self: center;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--rule) 0 2px,
+    transparent 2px 6px
+  );
+  opacity: 0.85;
+}
+
+.clock__head .block-head__meta {
+  flex: 0 0 auto;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.clock__zone {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45em;
+  color: var(--fg-muted);
+}
+
+.clock__zone-sep {
+  color: var(--fg-muted);
+  opacity: 0.5;
+}
+
+.clock__main {
+  display: flex;
+  align-items: baseline;
+  margin: clamp(4px, 0.7vh, 9px) 0 clamp(1px, 0.25vh, 4px);
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.clock__time {
+  color: var(--fg-bright);
+  font-size: var(--fs-clock);
+  font-weight: 200;
+  line-height: 0.9;
+  letter-spacing: -0.07em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 calc(5px * var(--we-glow)) rgb(var(--fg-rgb) / calc(0.09 * var(--glow-scale)));
+}
+
+.clock__sec {
+  color: var(--clock-sec);
+  font-size: calc(var(--fs-clock) * 0.3);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-left: 0.06em;
+  opacity: 0.88;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock__ampm {
+  color: var(--fg-dim);
+  font-size: calc(var(--fs-clock) * 0.18);
+  letter-spacing: 0.08em;
+  margin-left: 0.55em;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock__meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  color: var(--fg-dim);
+  font-size: var(--fs-ui);
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.clock__meta .dot {
+  color: var(--fg-muted);
+  opacity: 0.55;
+  margin: 0 0.65em;
+}
+
+.clock__meta #clockUptime {
+  color: var(--fg-dim);
+}
+
+/* ----- vitals ----------------------------------------------------------- */
+
+.vitals {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding-bottom: 1px;
+}
+
+.vitals__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: clamp(6px, 0.9vh, 12px);
+  padding-top: clamp(7px, 1.1vh, 14px);
+}
+
+.vitals__metrics {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: clamp(8px, 1.35vh, 19px);
+}
+
+.metric {
+  min-width: 0;
+}
+
+.metric__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.metric__label {
+  color: var(--fg-muted);
+  font-size: var(--fs-small);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.metric__value {
+  color: var(--fg-bright);
+  font-size: var(--fs-ui);
+  letter-spacing: 0.005em;
+}
+
+.metric__value .unit {
+  color: var(--fg-dim);
+  font-weight: 400;
+}
+
+.metric__value .sep {
+  color: var(--fg-muted);
+  margin: 0 0.38em;
+}
+
+.metric__value .arrow {
+  color: var(--fg-muted);
+  margin-right: 0.15em;
+}
+
+.metric__value .down {
+  color: var(--fg-bright);
+}
+
+.metric__value .up {
+  color: var(--fg-dim);
+}
+
+.spark {
+  display: block;
+  height: 1em;
+  margin-top: clamp(2px, 0.42vh, 5px);
+  color: var(--spark);
+  font-size: var(--fs-spark);
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.spark span {
+  color: var(--spark);
+}
+
+.spark span.mid {
+  color: var(--spark-mid);
+  opacity: 0.82;
+}
+
+.spark span.hi {
+  color: var(--accent);
+}
+
+.spark span.hi2 {
+  color: var(--accent);
+  opacity: 0.72;
+}
+
+.spark--bar span.mid,
+.spark--bar span.hi,
+.spark--bar span.hi2 {
+  color: var(--spark-bar);
+}
+
+.spark--bar span.hi {
+  opacity: 0.55;
+}
+
+.spark--bar span.hi2 {
+  opacity: 0.34;
+}
+
+.spark--bar span.low {
+  color: var(--fg-muted);
+  opacity: 0.2;
+}
+
+.gauge-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--fg-dim);
+  font-size: var(--fs-ui);
+  line-height: 1.35;
+}
+
+.gauge-row .gauge-label {
+  color: var(--fg-muted);
+  font-size: var(--fs-small);
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+}
+
+.gauge-row .gauge-value {
+  color: var(--fg-dim);
+  white-space: nowrap;
+}
+
+/* process list ----------------------------------------------------------- */
+
+.vitals__proc {
+  margin-top: 0;
+  padding-top: clamp(7px, 1.1vh, 13px);
+  border-top: 1px solid var(--rule-soft);
+  flex: 0 0 auto;
+}
+
+.proc-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--fg-muted);
+  font-size: var(--fs-small);
+  line-height: 1.2;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  margin-bottom: clamp(4px, 0.6vh, 7px);
+}
+
+.proc-head .proc-cols {
+  letter-spacing: 0.06em;
+}
+
+.proc-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4.2em 4.8em;
+  align-items: baseline;
+  gap: 0.8em;
+  color: var(--fg-muted);
+  font-size: var(--fs-ui);
+  line-height: 1.62;
+  white-space: nowrap;
+}
+
+.proc-row .proc-name {
+  color: var(--fg-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.proc-row .proc-cpu,
+.proc-row .proc-mem {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.proc-row .proc-cpu {
+  color: var(--fg-dim);
+}
+
+.proc-row .proc-mem {
+  color: var(--fg-muted);
+}
+
+/* ----- git -------------------------------------------------------------- */
+
+.git {
+  flex: 0 0 auto;
+  padding-bottom: 1px;
+}
+
+.git .block-head {
+  align-items: baseline;
+}
+
+.git__branch {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5em;
+  color: var(--fg);
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: var(--fs-ui);
+}
+
+.git__branch .branch-name {
+  color: var(--fg-bright);
+}
+
+.git__branch .ahead {
+  color: var(--accent);
+}
+
+.git__branch .behind {
+  color: var(--fg-muted);
+}
+
+.commit-list {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2px, 0.28vh, 4px);
+  padding-top: clamp(7px, 1vh, 12px);
+}
+
+.commit {
+  display: grid;
+  grid-template-columns: 7.4ch minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 1.15em;
+  font-size: var(--fs-ui);
+  line-height: 1.55;
+  white-space: nowrap;
+}
+
+.commit__hash {
+  color: var(--fg-muted);
+  font-size: var(--fs-small);
+  letter-spacing: 0.02em;
+}
+
+.commit__msg {
+  color: var(--fg-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.commit__when {
+  color: var(--fg-muted);
+  font-size: var(--fs-small);
+  letter-spacing: 0.02em;
+}
+
+.contrib {
+  margin-top: clamp(8px, 1.15vh, 15px);
+  padding-top: clamp(7px, 1vh, 12px);
+  border-top: 1px solid var(--rule-soft);
+}
+
+.contrib__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--fg-muted);
+  font-size: var(--fs-small);
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.contrib__head .streak {
+  color: var(--fg-dim);
+}
+
+.contrib__head .streak .accent {
+  color: var(--accent);
+}
+
+.contrib__grid {
+  display: grid;
+  grid-template-columns: repeat(53, minmax(0, 1fr));
+  gap: clamp(1px, 0.1vw, 2px);
+  width: 100%;
+  margin-top: clamp(5px, 0.7vh, 9px);
+}
+
+.contrib__grid i {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--rule-soft);
+}
+
+.contrib__grid i[data-l="1"] {
+  background: rgb(var(--fg-rgb) / 0.08);
+}
+
+.contrib__grid i[data-l="2"] {
+  background: rgb(var(--accent-rgb) / 0.12);
+}
+
+.contrib__grid i[data-l="3"] {
+  background: rgb(var(--accent-rgb) / 0.24);
+}
+
+.contrib__grid i[data-l="4"] {
+  background: rgb(var(--accent-rgb) / 0.48);
+}
+
+/* ----- rail responsiveness --------------------------------------------- */
+
+.rail[data-compact="true"] .metric--extra,
+.rail[data-compact="true"] .gauge-row--extra,
+.rail[data-compact="true"] .proc-row:nth-child(n+6) {
+  display: none;
+}
+
+@media (max-width: 1120px), (orientation: portrait) {
+  .rail {
+    display: none;
+  }
+}
+
+@media (max-height: 860px) {
+  .metric--extra,
+  .gauge-row--extra,
+  .proc-row:nth-child(n+6) {
+    display: none;
+  }
+}
+
+@media (max-height: 690px) {
+  .vitals__proc {
+    display: none;
+  }
+
+  .contrib {
+    display: none;
+  }
+
+  .clock__meta .dot,
+  .clock__meta #clockUptime {
+    display: none;
+  }
+}

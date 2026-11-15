@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" data-theme="phosphor" data-accent="theme" data-banner="full" data-session="mixed" data-paused="false" data-audio="false" data-render="loading">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Phosphor Terminal</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/terminal.css">
+  <link rel="stylesheet" href="css/rail.css">
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true">
+    <div class="backdrop__grid"></div>
+    <div class="backdrop__bloom"></div>
+    <div class="backdrop__vignette"></div>
+  </div>
+
+  <main class="desk" id="desk">
+    <div class="frame" id="frame">
+      <div class="workspace" id="workspace">
+        <section class="term" id="term" aria-label="Terminal">
+          <div class="term__screen" id="termScreen" tabindex="-1">
+            <div class="term__history" id="termHistory"></div>
+          </div>
+        </section>
+
+        <aside class="rail" id="rail" aria-label="System panel">
+          <section class="clock" id="clockBlock" aria-label="Clock">
+            <div class="block-head clock__head">
+              <span class="block-head__label">Local time</span>
+              <span class="clock__leader" aria-hidden="true"></span>
+              <span class="block-head__meta clock__zone">
+                <span id="clockZone">UTC+08:00</span>
+                <span class="clock__zone-sep">·</span>
+                <span id="clockWeek">W47</span>
+              </span>
+            </div>
+            <div class="clock__main">
+              <span class="clock__time" id="clockTime">23:44</span>
+              <span class="clock__sec" id="clockSec">:07</span>
+              <span class="clock__ampm" id="clockAmPm" hidden>PM</span>
+            </div>
+            <div class="clock__meta">
+              <span id="clockDate">Sun 16 Nov 2026</span>
+              <span class="dot">·</span>
+              <span id="clockUptime">up 3d 7h</span>
+              <span class="dot">·</span>
+              <span>load <span class="tnum" id="clockLoad">0.45 0.38 0.31</span></span>
+            </div>
+          </section>
+
+          <section class="vitals" id="vitals" aria-label="System vitals"></section>
+
+          <section class="git" id="gitBlock" aria-label="Git repository"></section>
+        </aside>
+      </div>
+
+      <footer class="status" id="status" aria-label="tmux statusline">
+        <div class="status__left">
+          <span class="session-ind">[0]</span>
+          <span class="win is-active"><span class="win__index">1</span>:zsh<span class="win__flag">*</span></span>
+          <span class="win"><span class="win__index">2</span>:nvim</span>
+          <span class="win win--logs"><span class="win__index">3</span>:logs</span>
+        </div>
+        <div class="status__center" id="statusCenter">mixed @ workstation</div>
+        <div class="status__right">
+          <span class="status__branch" id="statusBranch">main <span class="up">↑2</span></span>
+          <span class="status__sep status__sep--branch">·</span>
+          <span class="status__date" id="statusDate">Sun 16 Nov</span>
+          <span class="status__sep status__sep--date">·</span>
+          <span class="status__time tnum" id="statusTime">23:44</span>
+        </div>
+      </footer>
+    </div>
+  </main>
+
+  <div class="crt" aria-hidden="true">
+    <div class="crt__scanlines"></div>
+    <div class="crt__grain"></div>
+    <div class="crt__vignette"></div>
+  </div>
+
+  <script src="js/properties.js"></script>
+  <script src="js/we-api.js"></script>
+  <script src="js/content.js"></script>
+  <script src="js/terminal.js"></script>
+  <script src="js/rail.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
